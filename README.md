@@ -77,12 +77,4 @@ Standard usage of the the choppy command line is `./choppy-lite.py -s <shapefile
 
 ## Using included examples
 
-Included in the `examples/` directory is a raster image of Nebraska produced via LandScan and a shape archive of county boundaries for Nebraska. Running the example is easy: `./choppy-lite.py -s examples/nebraska.zip -r examples/Neb_Landscan -f none -x "min,max,mean,std" -a -g` to produce `pandas` output for 
-
-
-## Dockerfile usage
-There is conveniently a docker file also provided for use without having to install the overhead system and python packages required to run choppy-lite. The docker file is registered at [code.ornl.gov:4567](http://code.orgnl.gov) and you can pull it with `docker pull 6ng/choppy-lite:latest`. The latest release can always be found [here](code.ornl.gov:4567/6ng/choppy-lite:latest).
- Usage of this docker file may look like this: `docker run --volume ${pwd}:/data choppy-lite /usr/local/bin/choppy-lite.py -s <shapefile.zip> -r <raster.tif> -f xlsx` or if you don't yet have the image locally or did not wish to build it, you can pull it down (don't forget to `docker login`) and use thusly: `docker run --volume $(pwd):/data code.ornl.gov:4567/6ng/choppy-lite:latest -s <shape_archive> -r <raster_file> -f <desired_format>`.
-
-### Dockerfile usage with examples
-To run the dockerized version of `choppy-lite` on the examples, this can be accomplished with `docker run --volume $(pwd):/data code.ornl.gov:4567/6ng/choppy-lite:latest -s examples/nebraska.zip -r examples/Neb_Landscan -f xlsx -a -g -d zonal_stats_example.xlsx`. This will output the zonal statistics to `example.xlsx` in the current working directory.
+Included in the `examples/` directory is a raster image of Nebraska produced via LandScan and a shape archive of county boundaries for Nebraska. Running the example is easy: `./choppy-lite.py -s examples/nebraska.zip -r examples/Neb_Landscan -f none -x "min,max,mean,std" -a -g` to produce `pandas` output.
