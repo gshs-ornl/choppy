@@ -1,0 +1,4 @@
+2019-08-13:
+    Initial Release
+2019-10-23:
+    Updates to rasterpy image to include python bindings, specifically `gdal_merge.py`

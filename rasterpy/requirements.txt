@@ -1,0 +1,9 @@
+argparse
+numpy
+scipy
+pandas
+geopandas
+patool
+rasterstats
+openpyxl
+

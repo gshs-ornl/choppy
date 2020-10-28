@@ -1,0 +1,10 @@
+argparse
+numpy
+scipy
+pandas
+geopandas
+fiona
+patool
+rasterstats
+openpyxl
+

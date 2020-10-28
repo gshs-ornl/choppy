@@ -1,0 +1,9 @@
+*.xlsx
+*.csv
+*.tsv
+*.swp
+*.swo
+__pycache__/
+build/
+choppy.egg-info/
+dist/
