@@ -8,7 +8,7 @@ FROM python:3.8-slim-buster as builder
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
     cmake build-essential wget ca-certificates unzip pkg-config \
-    zlib1g-dev libfreexl-dev libxml2-dev nasm libpng-dev
+    libpq-dev zlib1g-dev libfreexl-dev libxml2-dev nasm libpng-dev
 
 WORKDIR /tmp
 
