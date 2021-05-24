@@ -5,5 +5,5 @@
 *.swo
 __pycache__/
 build/
-choppy.egg-info/
+*.egg-info/
 dist/

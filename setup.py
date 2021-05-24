@@ -13,12 +13,14 @@ scripts.extend(glob.glob(os.path.join(root_dir,'scripts/*')))
 long_description = open(os.path.join(root_dir, 'README.md')).read()
 examples = os.path.join(root_dir,'examples')
 
-setup(name='choppy',
-        version='1.0.1',
+packages = ['choppyzs']
+setup(name='choppyzs',
+        version='1.0.4',
         author='Joshua N. Grant',
         description=long_description,
         scripts=scripts,
         examples=examples,
         author_email='grantjn@ornl.gov',
-        url='https://code.ornl.gov/6ng/choppy-lite',
-        packages=find_packages())
+        url='https://github.com/gshs-ornl/choppy',
+        packages=packages)
+
