@@ -52,8 +52,6 @@ class Choppy:
                  output_file='zonal_stats', all_touched=False,
                  output_format='xlsx', geometry=False):
         """ Initialize a Choppy class for preparation for zonal statistics """
-        shape_archive = shape_archive.name
-        raster_file = raster_file.name
         # create a temporary workspace
         if output_format not in ['xlsx', 'csv', 'tsv', 'none']:
             raise RuntimeError(f'This format ({output_format}) is not '
