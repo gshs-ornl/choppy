@@ -85,7 +85,7 @@ def banner():
   print(Color.yellow + "  #(//**,,.     " + Color.cyan + "                 _  / _  / / /_ /  __/     ")
   print(Color.yellow + " %(//**,,.      " + Color.cyan + "                 /_/  /_/  \__/ \___/      ")
   print(Color.yellow + " (//**,,.#                                                 ")
-  print(Color.yellow + "((/***,,*                   " + Color.yellow + "v " + Color.lblue + "0.1.2  ")
+  print(Color.yellow + "((/***,,*                   " + Color.yellow + "v " + Color.lblue + "0.1.4  ")
   print(Color.yellow + "(/***,,." + Color.default)
 
 # 1}}} -----------------------------------------------------------------------
