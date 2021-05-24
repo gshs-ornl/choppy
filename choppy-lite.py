@@ -15,7 +15,7 @@ import geopandas as gpd
 from tempfile import TemporaryDirectory
 from rasterstats import zonal_stats
 from scipy import stats
-from choppy import Choppy
+from choppyzs.choppy import Choppy
 # 1}}} -----------------------------------------------------------------------
 # legal {{{1 -----------------------------------------------------------------
 __author__ = 'Joshua N. Grant'
@@ -117,7 +117,7 @@ def parse_args():
         type=str, help='the destination output file')
   parser.add_argument('-a','--all-touched', dest='all_touched', \
         action='store_true')
-  parser.set_defaults(stats='min,max,mean,median,majority,sum,std,count', \
+  parser.set_defaults(stats='min,max,mean,median,majority,sum,std,count,range', \
         output_dir=os.getcwd(), output_format='csv', \
         output_file='zonal_stats', all_touched=False, report_geometry=False)
   return parser.parse_args()
@@ -127,6 +127,7 @@ if __name__ == "__main__":
   if not len(sys.argv) > 0:
     sys.exit()
   args = parse_args()
+  print(type(args.shape_archive))
   c = Choppy(shape_archive=args.shape_archive,
              raster_file=args.raster,
              output_dir=args.output_dir,
@@ -135,7 +136,8 @@ if __name__ == "__main__":
              all_touched=args.all_touched,
              output_format=args.output_format,
              geometry=args.report_geometry)
-  print(c)
   c.chop()
+
+
 
 
