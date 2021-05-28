@@ -73,8 +73,15 @@ done
 # 1}}}
 # logic {{{1
 banner
+if [[ ! -n "$CR_PAT" ]]; then
+    echo "CR_PAT is not set"
+fi
+if [[ ! -n "$CR_USER" ]]; then
+    echo "CR_USER is not set"
+fi
+echo $CR_PAT | docker login ghcr.io -u $CR_USER --password-stdin
 DOCKER_BUILDKIT=1 docker build $NOCACHED  \
-  -t "code.ornl.gov:4567/wstamp-analysis/choppy-lite/rasterpy:$TAG" . || \
+  -t "ghcr.io/gshs-ornl/choppy/rasterpy:$TAG" . || \
   die "Image failed to build."
-docker push "code.ornl.gov:4567/wstamp-analysis/choppy-lite/rasterpy:$TAG"
+docker push "ghcr.io/gshs-ornl/choppy/rasterpy:$TAG"
 # 1}}}
