@@ -60,7 +60,7 @@ class Choppy:
         if ',' in statistics:
             self.statistics = statistics.split(',')
         if ',' not in statistics:
-            self.statistics
+            self.statistics = statistics
         self.output_format = output_format
         if not output_file.lower().endswith(output_format):
             self.output_file = output_file + '.' + output_format

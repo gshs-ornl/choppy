@@ -1,2 +1,5 @@
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.tif filter=lfs diff=lfs merge=lfs -text
+examples/Neb_Landscan.tif filter=lfs diff=lfs merge=lfs -text
+examples/Shapes.zip filter=lfs diff=lfs merge=lfs -text
+examples/drought.nc filter=lfs diff=lfs merge=lfs -text

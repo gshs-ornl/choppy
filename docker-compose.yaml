@@ -1,0 +1,11 @@
+version: '3.6'
+
+services:
+  choppy:
+    build: .
+    volumes:
+      - ./examples:/examples
+      - ./output:/output
+      - ./src:/tmp/src
+    entrypoint: /examples/test.py
+    working_dir: /examples
