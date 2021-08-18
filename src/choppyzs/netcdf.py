@@ -40,7 +40,7 @@ class NetCDF2Stats():
         self.all_touched = all_touched
         self.shape_archive = shape_archive
         self.nc_file = nc_file
-        self.output_file = output_file
+        self.output_file = output_file + '.' + output_format
         self.geometry = geometry
         pa.extract_archive(shape_archive, outdir=self.working_directory.name)
         for file_name in os.listdir(self.working_directory.name):
@@ -57,7 +57,7 @@ class NetCDF2Stats():
         self.shape_df = gpd.read_file(self.shape_file)
         self.nc_ds = xr.open_dataset(self.nc_file)
         self.affine = rio.open(self.nc_file).transform
-        self.df = None
+        self.df_list = []
 
     def chop(self, time_var='time', value_var='scpdsi'):
         """Chop the raster stats over the years."""
@@ -67,28 +67,8 @@ class NetCDF2Stats():
         logger.info(f'Parsing {len(nc_times)} times')
         for nc_time in nc_times:
             logger.info(f'Parsing time {nc_time}')
-            logger.info(f'Class of nc_time is {type(nc_time)}')
             nc_arr = nc_var.sel(time=nc_time)
             nc_arr_values = nc_arr.values
-            # logger.info(f'Parsing {len(self.shape_df)}')
-            # for i in range(len(self.shape_df)):
-            #     stats_data = zonal_stats(self.shape_df.geometry,
-            #                              # self.shape_file,
-            #                              nc_arr_values, affine=self.affine,
-            #                              stats=self.statistics,
-            #                              geojson_out=self.geojson,
-            #                              all_touched=self.all_touched)
-            #     logger.info(f'{stats_data}')
-            #     sd = pd.DataFrame.from_dict(stats_data)
-            #     df = pd.DataFrame(self.shape_df)
-            #     dat = pd.concat([df, sd], axis=1)
-            #     dat['time'] = nc_time
-            #     if self.geometry is False:
-            #         dat.drop(columns='geometry')
-            #     if self.df is None:
-            #         self.df = dat
-            #     else:
-            #         self.df = self.df.append(dat, ignore_index=True)
             stats_data = zonal_stats(self.shape_file,
                                      nc_arr_values, affine=self.affine,
                                      stats=self.statistics,
@@ -100,14 +80,12 @@ class NetCDF2Stats():
             logging.info(f'{nc_time.values}')
             dat['time'] = nc_time.values
             if self.geometry is False:
-                dat.drop(columns='geometry')
-            if self.df is None:
-                self.df = dat
-            else:
-                self.df = self.df.append(dat, ignore_index=True)
+                dat.drop(columns='geometry', inplace=True, errors='ignore')
+            self.df_list.append(dat)
 
     def export(self):
         """Export the dataframe as the appropriate output."""
+        self.df = pd.concat(self.df_list, ignore_index=True)
         if self.output_format == 'csv':
             self.df.to_csv(self.output_path, index=False)
         elif self.output_format == 'tsv':
