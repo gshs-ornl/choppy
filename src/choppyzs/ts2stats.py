@@ -9,8 +9,12 @@ from pathlib import Path
 import patoolib
 import xarray
 import rasterio
+import pandas as pd
 import geopandas as gpd
 import fiona
+from tqdm import tqdm
+from rasterstats import zonal_stats
+
 
 try:
     from choppyzs.imagediff import check_if_file_exists
@@ -82,7 +86,35 @@ def ts_to_stats(shape_file_archive, ts_file):
         """ perform the data aggregation
         :return: dataframe of aggregated data
         """
-        pass
+        scpdsi = drought_ts['scpdsi']
+        times = drought_ts['time'].values
+        dfs = []
+
+        for nc_time in tqdm(times):
+            # logger.info(f'Parsing time {nc_time}')
+            nc_arr = scpdsi.sel(time=nc_time)
+            nc_arr_values = nc_arr.values
+
+            # Note that we use the fiona database instead of the shape file,
+            # which save a little bit of time.
+            stats_data = zonal_stats(boundaries_db,
+                                     nc_arr_values, affine=affine,
+                                     stats='min,max,mean,median,majority,sum,std,count,range'.split(','),
+                                     nodata=-9999, # to shut up stupid warning
+                                     geojson_out=False,
+                                     all_touched=True)
+            sd = pd.DataFrame.from_dict(stats_data)
+
+            # We also save a little time by just reusing the static dataframe
+            # instead of running through a constructor over and over again.
+            # df = pd.DataFrame(self.shape_df)
+            dat = pd.concat([boundaries_df, sd], axis=1)
+
+            dat['time'] = nc_time
+
+            dfs.append(dat)
+
+        return pd.concat(dfs, ignore_index=True)
 
     check_if_file_exists(shape_file_archive)
     check_if_file_exists(ts_file)
@@ -94,13 +126,21 @@ def ts_to_stats(shape_file_archive, ts_file):
     # Now grab the time series data
     drough_ts, affine = read_ts(ts_file)
 
+    # Now do the chopping
+    df = chop(boundaries_df, boundaries_db, drough_ts, affine)
 
-
-
+    return df
 
 
 if __name__ == '__main__':
-    df = ts_to_stats('examples/lichtenstein.zip',
-                     'examples/drought.nc')
+    logger.info('running ts2stats test')
 
-    print('Done')
+    df = ts_to_stats('/examples/lichtenstein.zip',
+                     '/examples/drought.nc')
+
+    if df is not none and not df.empty:
+        df.to_csv('new_zonal_stats.csv')
+    else:
+        logger.warning('No data to write.')
+
+    logger.info('Done')

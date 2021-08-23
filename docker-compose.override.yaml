@@ -2,4 +2,9 @@ version: '3.6'
 
 services:
   choppy:
-    entrypoint: tail -f /dev/null
+    volumes:
+      - ./examples:/examples
+      - ./output:/output
+      - ./src:/tmp/src
+    entrypoint: python3 /tmp/src/choppyzs/ts2stats.py
+    working_dir: /examples
