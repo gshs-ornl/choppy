@@ -26,7 +26,7 @@ class NetCDF2Stats():
 
     def __init__(self, shape_archive, nc_file, output_dir=os.getcwd(),
                  statistics='min,max,mean,median,majority,sum,std,count,range',
-                 output_file='zonal_stats', all_touched=False,
+                 output_file='zonal_stats', all_touched=True,
                  output_format='csv', geometry=False):
         """Initialize the NetCDF2Stats class."""
         if output_format not in ['xlsx', 'csv', 'tsv', 'none', None]:
@@ -81,6 +81,7 @@ class NetCDF2Stats():
             dat['time'] = nc_time
             if self.geometry is False:
                 dat.drop(columns='geometry', inplace=True, errors='ignore')
+            print(dat)
             self.df_list.append(dat)
 
     def export(self):
