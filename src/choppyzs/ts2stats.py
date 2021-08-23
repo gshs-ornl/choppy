@@ -124,10 +124,10 @@ def ts_to_stats(shape_file_archive, ts_file):
     boundaries_df, boundaries_db = read_shapefile(shape_file_archive)
 
     # Now grab the time series data
-    drough_ts, affine = read_ts(ts_file)
+    drought_ts, affine = read_ts(ts_file)
 
     # Now do the chopping
-    df = chop(boundaries_df, boundaries_db, drough_ts, affine)
+    df = chop(boundaries_df, boundaries_db, drought_ts, affine)
 
     return df
 
