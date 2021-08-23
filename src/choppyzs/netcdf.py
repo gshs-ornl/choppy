@@ -10,6 +10,8 @@ import rioxarray
 import patoolib as pa
 import rasterio as rio
 import geopandas as gpd
+import fiona
+from tqdm import tqdm
 from rasterstats import zonal_stats
 try:
     from choppyzs.imagediff import check_if_file_exists
@@ -55,6 +57,12 @@ class NetCDF2Stats():
         else:
             self.geojson = False
         self.shape_df = gpd.read_file(self.shape_file)
+
+        # We use fiona to slurp in the Shapefile into memory since zonal_stats
+        # does that anyway.  But instead of reading the Shapefile every time
+        # we just read it once and use the fiona object to generate the CSV.
+        self.spatial_db = fiona.open(self.shape_file)
+
         self.nc_ds = xr.open_dataset(self.nc_file)
         self.affine = rio.open(self.nc_file).transform
         self.df_list = []
@@ -65,23 +73,34 @@ class NetCDF2Stats():
         logger.info(f'{len(nc_var)}')
         nc_times = self.nc_ds[time_var].values
         logger.info(f'Parsing {len(nc_times)} times')
-        for nc_time in nc_times:
-            logger.info(f'Parsing time {nc_time}')
+
+        # Commented out logging in favor of tqdm since it gives updates on
+        # how long it's going to take, and keeps running stats for each
+        # iteration.
+        for nc_time in tqdm(nc_times):
+            # logger.info(f'Parsing time {nc_time}')
             nc_arr = nc_var.sel(time=nc_time)
             nc_arr_values = nc_arr.values
-            stats_data = zonal_stats(self.shape_file,
+
+            # Note that we use the fiona database instead of the shape file,
+            # which save a little bit of time.
+            stats_data = zonal_stats(self.spatial_db,
                                      nc_arr_values, affine=self.affine,
                                      stats=self.statistics,
+                                     nodata=-9999, # to shut up stupid warning
                                      geojson_out=self.geojson,
                                      all_touched=self.all_touched)
             sd = pd.DataFrame.from_dict(stats_data)
-            df = pd.DataFrame(self.shape_df)
-            dat = pd.concat([df, sd], axis=1)
-            logging.info(f'{nc_time}')
+
+            # We also save a little time by just reusing the static dataframe
+            # instead of running through a constructor over and over again.
+            # df = pd.DataFrame(self.shape_df)
+            dat = pd.concat([self.shape_df, sd], axis=1)
+            # logging.info(f'{nc_time}')
             dat['time'] = nc_time
             if self.geometry is False:
                 dat.drop(columns='geometry', inplace=True, errors='ignore')
-            print(dat)
+            # print(dat)
             self.df_list.append(dat)
 
     def export(self):
