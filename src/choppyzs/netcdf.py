@@ -77,8 +77,8 @@ class NetCDF2Stats():
             sd = pd.DataFrame.from_dict(stats_data)
             df = pd.DataFrame(self.shape_df)
             dat = pd.concat([df, sd], axis=1)
-            logging.info(f'{nc_time.values}')
-            dat['time'] = nc_time.values
+            logging.info(f'{nc_time}')
+            dat['time'] = nc_time
             if self.geometry is False:
                 dat.drop(columns='geometry', inplace=True, errors='ignore')
             self.df_list.append(dat)
