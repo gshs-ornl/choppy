@@ -29,7 +29,6 @@ def ts_to_stats(shape_file_archive, ts_file):
     :param ts_file: is NetCDF file of time series drought data
     :return: dataframe of drought data by region and month
     """
-
     def read_shapefile(shape_file_archive):
         """ Create a geopandas dataframe and a fiona db from shapefile
 
@@ -44,6 +43,8 @@ def ts_to_stats(shape_file_archive, ts_file):
             # TODO Wrap this in exception handling in case there are
             # no found shape files.
             shape_file = list(Path(temp_dir).glob('*.shp'))[0]
+
+            logger.info(f'Reading {shape_file}')
 
             # We want this geopandas dataframe since we're going to be
             # using it over and over again to build the returned
@@ -63,6 +64,26 @@ def ts_to_stats(shape_file_archive, ts_file):
 
             return boundaries_df, boundaries_db
 
+    def read_ts(ts_file):
+        """ read the time series data file
+        :returns: time series data and affine transform
+        """
+        logger.info(f'Reading {ts_file}')
+
+        # Get the time series of drought data
+        drought_ts = xarray.open_dataset(ts_file)
+
+        # Bendy affine transform data
+        affine = rasterio.open(ts_file).transform
+
+        return drought_ts, affine
+
+    def chop(boundaries_df, boundaries_db, drought_ts, affine):
+        """ perform the data aggregation
+        :return: dataframe of aggregated data
+        """
+        pass
+
     check_if_file_exists(shape_file_archive)
     check_if_file_exists(ts_file)
 
@@ -70,11 +91,9 @@ def ts_to_stats(shape_file_archive, ts_file):
     # given shape file.
     boundaries_df, boundaries_db = read_shapefile(shape_file_archive)
 
-    # Get the time series of drought data
-    drought_ts = xarray.open_dataset(ts_file)
+    # Now grab the time series data
+    drough_ts, affine = read_ts(ts_file)
 
-    # Bendy affine transform data
-    affine = rasterio.open(ts_file).transform
 
 
 
