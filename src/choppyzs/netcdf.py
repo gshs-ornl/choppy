@@ -57,6 +57,8 @@ class NetCDF2Stats():
         else:
             self.geojson = False
         self.shape_df = gpd.read_file(self.shape_file)
+        if self.geometry is False:
+            self.shape_df.drop(columns='geometry', inplace=True, errors='ignore')
 
         # We use fiona to slurp in the Shapefile into memory since zonal_stats
         # does that anyway.  But instead of reading the Shapefile every time
@@ -98,8 +100,11 @@ class NetCDF2Stats():
             dat = pd.concat([self.shape_df, sd], axis=1)
             # logging.info(f'{nc_time}')
             dat['time'] = nc_time
-            if self.geometry is False:
-                dat.drop(columns='geometry', inplace=True, errors='ignore')
+
+            # We do this once in the ctor, so we don't have to do this
+            # over and over and over and over and over again.
+            # if self.geometry is False:
+            #     dat.drop(columns='geometry', inplace=True, errors='ignore')
             # print(dat)
             self.df_list.append(dat)
 
