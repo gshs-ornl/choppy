@@ -5,6 +5,7 @@
 """
 from tempfile import TemporaryDirectory
 from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor
 
 import patoolib
 import xarray
@@ -14,7 +15,6 @@ import geopandas as gpd
 import fiona
 from tqdm import tqdm
 from rasterstats import zonal_stats
-
 
 try:
     from choppyzs.imagediff import check_if_file_exists
@@ -26,6 +26,49 @@ except ImportError:
 logger = create_logger()
 
 
+def init_pool(b_df, b_db, scpdsi_data, affine_data):
+    """ Used to set up data for workers """
+    global boundaries_df, boundaries_db, scpdsi, affine
+    boundaries_df = b_df
+    boundaries_db = b_db
+    scpdsi = scpdsi_data
+    affine = affine_data
+
+
+def agg_ts_data(nc_time):
+    """ This creates a single dataframe for the given nc_time
+
+    :return: single dataframe of nc_time data
+    """
+    try:
+        from choppyzs.logz import create_logger
+    except ImportError:
+        from .logz import create_logger
+
+    logger = create_logger()
+    logger.info(f'Parsing time {nc_time}')
+
+    nc_arr = scpdsi.sel(time=nc_time)
+    nc_arr_values = nc_arr.values
+
+    # Note that we use the fiona database instead of the shape file,
+    # which save a little bit of time.
+    stats_data = zonal_stats(boundaries_db,
+                             nc_arr_values, affine=affine,
+                             stats='min,max,mean,median,majority,sum,std,count,range'.split(
+                                 ','),
+                             nodata=-9999,  # to shut up stupid warning
+                             geojson_out=False,
+                             all_touched=True)
+    sd = pd.DataFrame.from_dict(stats_data)
+
+    dat = pd.concat([boundaries_df, sd], axis=1)
+
+    dat['time'] = nc_time
+
+    return dat
+
+
 def ts_to_stats(shape_file_archive, ts_file):
     """ Aggregate time series drought data by month and region.
 
@@ -33,6 +76,7 @@ def ts_to_stats(shape_file_archive, ts_file):
     :param ts_file: is NetCDF file of time series drought data
     :return: dataframe of drought data by region and month
     """
+
     def read_shapefile(shape_file_archive):
         """ Create a geopandas dataframe and a fiona db from shapefile
 
@@ -90,29 +134,38 @@ def ts_to_stats(shape_file_archive, ts_file):
         times = drought_ts['time'].values
         dfs = []
 
-        for nc_time in tqdm(times):
-            # logger.info(f'Parsing time {nc_time}')
-            nc_arr = scpdsi.sel(time=nc_time)
-            nc_arr_values = nc_arr.values
+        with ProcessPoolExecutor(initializer=init_pool,
+                                 initargs=(boundaries_df, boundaries_db, scpdsi,
+                                           affine)) as pool:
+            dfs = pool.map(agg_ts_data, times)
 
-            # Note that we use the fiona database instead of the shape file,
-            # which save a little bit of time.
-            stats_data = zonal_stats(boundaries_db,
-                                     nc_arr_values, affine=affine,
-                                     stats='min,max,mean,median,majority,sum,std,count,range'.split(','),
-                                     nodata=-9999, # to shut up stupid warning
-                                     geojson_out=False,
-                                     all_touched=True)
-            sd = pd.DataFrame.from_dict(stats_data)
+        # for nc_time in tqdm(times):
+        #     # logger.info(f'Parsing time {nc_time}')
+        #     nc_arr = scpdsi.sel(time=nc_time)
+        #     nc_arr_values = nc_arr.values
+        #
+        #     # Note that we use the fiona database instead of the shape file,
+        #     # which save a little bit of time.
+        #     stats_data = zonal_stats(boundaries_db,
+        #                              nc_arr_values, affine=affine,
+        #                              stats='min,max,mean,median,majority,sum,std,count,range'.split(','),
+        #                              nodata=-9999, # to shut up stupid warning
+        #                              geojson_out=False,
+        #                              all_touched=True)
+        #     sd = pd.DataFrame.from_dict(stats_data)
+        #
+        #     # We also save a little time by just reusing the static dataframe
+        #     # instead of running through a constructor over and over again.
+        #     # df = pd.DataFrame(self.shape_df)
+        #     dat = pd.concat([boundaries_df, sd], axis=1)
+        #
+        #     dat['time'] = nc_time
+        #
+        #     dfs.append(dat)
 
-            # We also save a little time by just reusing the static dataframe
-            # instead of running through a constructor over and over again.
-            # df = pd.DataFrame(self.shape_df)
-            dat = pd.concat([boundaries_df, sd], axis=1)
+        dfs = list(dfs)
 
-            dat['time'] = nc_time
-
-            dfs.append(dat)
+        logger.info(f'Have {len(dfs)} dataframes.')
 
         return pd.concat(dfs, ignore_index=True)
 
@@ -135,8 +188,12 @@ def ts_to_stats(shape_file_archive, ts_file):
 if __name__ == '__main__':
     logger.info('running ts2stats test')
 
-    df = ts_to_stats('/examples/lichtenstein.zip',
-                     '/examples/drought.nc')
+    if Path('/examples').exists():
+        df = ts_to_stats('/examples/lichtenstein.zip',
+                         '/examples/drought.nc')
+    else:
+        df = ts_to_stats('examples/lichtenstein.zip',
+                         'examples/drought.nc')
 
     if df is not none and not df.empty:
         df.to_csv('new_zonal_stats.csv')
