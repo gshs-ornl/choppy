@@ -3,18 +3,14 @@
     This bins time series drought data by boundaries described in the
     given shape file.
 """
-from tempfile import TemporaryDirectory
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed, \
     ThreadPoolExecutor
 
-import patoolib
 import xarray
 import rasterio
 import pandas as pd
 import geopandas as gpd
-import fiona
-from tqdm import tqdm
 from rasterstats import zonal_stats
 
 try:
