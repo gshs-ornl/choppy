@@ -1,0 +1,11 @@
+cru_ts4.05.1901.2020.cld.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.dtr.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.frs.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.tmp.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.tmx.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.vap.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.wet.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.pet.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.pre.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.tmn.dat.nc filter=lfs diff=lfs merge=lfs -text
+cru_ts4.05.1901.2020.wet.dat.nc.tar.gz filter=lfs diff=lfs merge=lfs -text
