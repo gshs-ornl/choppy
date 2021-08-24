@@ -127,8 +127,7 @@ def ts_to_stats(shape_file_archive, ts_file):
     check_if_file_exists(shape_file_archive)
     check_if_file_exists(ts_file)
 
-    # Extra a geopandas dataframe and a fiona database from the
-    # given shape file.
+    # Extract a geopandas dataframe from the given shape file.
     boundaries_df = read_shapefile(shape_file_archive)
 
     # Now grab the time series data
