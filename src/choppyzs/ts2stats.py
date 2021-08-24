@@ -122,6 +122,8 @@ def ts_to_stats(shape_file_archive, ts_file):
     # Now do the chopping
     df = chop(boundaries_df, drought_ts, affine)
 
+    # We don't need the geometry for the final product; but we wait to do this
+    # at the very end since zonal_stats() needs the geometry to do its work.
     df.drop(columns='geometry',
             inplace=True,
             errors='ignore')
