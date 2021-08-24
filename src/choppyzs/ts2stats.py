@@ -73,22 +73,6 @@ def ts_to_stats(shape_file_archive, ts_file):
     :return: dataframe of drought data by region and month
     """
 
-    def read_shapefile(shape_file_archive):
-        """ Create a geopandas dataframe from shapefile
-
-        :param shape_file_archive: containing boundaries
-        :return: geopandas dataframe
-        """
-        logger.info(f'Reading {shape_file_archive}')
-
-        # We want this geopandas dataframe since we're going to be
-        # using it over and over again to build the returned
-        # dataframe. Note that geopandas is smart enough to grab the
-        # file from inside an archive.
-        boundaries_df = gpd.read_file(shape_file_archive)
-
-        return boundaries_df
-
     def read_ts(ts_file):
         """ read the time series data file
         :returns: time series data and affine transform
@@ -128,7 +112,7 @@ def ts_to_stats(shape_file_archive, ts_file):
     check_if_file_exists(ts_file)
 
     # Extract a geopandas dataframe from the given shape file.
-    boundaries_df = read_shapefile(shape_file_archive)
+    boundaries_df = gpd.read_file(shape_file_archive)
 
     # Now grab the time series data
     drought_ts, affine = read_ts(ts_file)
