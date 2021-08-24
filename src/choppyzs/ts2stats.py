@@ -25,7 +25,15 @@ logger = create_logger()
 
 def _init_pool(b_df, scpdsi_data, affine_data):
     """ Used to set up data for workers """
-    global boundaries_df, scpdsi, affine
+    global boundaries_df, scpdsi, affine, logger
+
+    try:
+        from choppyzs.logz import create_logger
+    except ImportError:
+        from .logz import create_logger
+
+    logger = create_logger()
+
     boundaries_df = b_df
     scpdsi = scpdsi_data
     affine = affine_data
@@ -38,12 +46,6 @@ def _agg_ts_data(nc_time):
 
     :returns: single dataframe of nc_time data
     """
-    try:
-        from choppyzs.logz import create_logger
-    except ImportError:
-        from .logz import create_logger
-
-    logger = create_logger()
     logger.info(f'Parsing time {nc_time}')
 
     nc_arr = scpdsi.sel(time=nc_time)
