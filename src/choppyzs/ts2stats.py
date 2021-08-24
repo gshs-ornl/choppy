@@ -47,8 +47,6 @@ def _agg_ts_data(nc_time):
     nc_arr = scpdsi.sel(time=nc_time)
     nc_arr_values = nc_arr.values
 
-    # Note that we use the fiona database instead of the shape file,
-    # which save a little bit of time.
     stats_data = zonal_stats(boundaries_df,
                              nc_arr_values, affine=affine,
                              stats='min,max,mean,median,majority,sum,std,count,range'.split(
