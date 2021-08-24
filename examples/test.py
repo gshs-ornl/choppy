@@ -6,19 +6,17 @@ logger = create_logger()
 
 from time import perf_counter
 
-from choppyzs.netcdf import NetCDF2Stats as NTS
+from choppyzs.ts2stats import ts_to_stats
 
 if __name__ == "__main__":
     start_time = perf_counter()
+
     # nts = NTS('Shapes.zip', 'drought.nc')
-    nts = NTS('lichtenstein.zip', 'drought.nc', all_touched=True)
-    logger.info(f'ctor time: {perf_counter() - start_time}')
+    df = ts_to_stats('lichtenstein.zip', 'drought.nc')
 
-    chop_time = perf_counter()
-    nts.chop()
-    logger.info(f'chop time: {chop_time - start_time}')
+    if df is not None and not df.empty:
+        df.to_csv('zonal_stats.csv', index=False)
+    else:
+        logger.warning('No data to write.')
 
-    export_time = perf_counter()
-    nts.export()
-    logger.info(f'export time: {export_time - chop_time}')
     logger.info(f'total time: {perf_counter() - start_time}')
