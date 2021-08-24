@@ -41,14 +41,14 @@ def agg_ts_data(nc_time):
 
     :returns: time and single dataframe of nc_time data
     """
-    # try:
-    #     from choppyzs.logz import create_logger
-    # except ImportError:
-    #     from .logz import create_logger
-    #
-    # logger = create_logger()
-    # logger.info(f'Parsing time {nc_time}')
-    #
+    try:
+        from choppyzs.logz import create_logger
+    except ImportError:
+        from .logz import create_logger
+
+    logger = create_logger()
+    logger.info(f'Parsing time {nc_time}')
+
     nc_arr = scpdsi.sel(time=nc_time)
     nc_arr_values = nc_arr.values
 
@@ -138,13 +138,13 @@ def ts_to_stats(shape_file_archive, ts_file):
 
         # json = boundaries_df.to_json()
 
-        with ThreadPoolExecutor(initializer=init_pool,
-                                initargs=(boundaries_df,
-                                          boundaries_db,
-                                          scpdsi,
-                                          affine)) as pool:
+        with ProcessPoolExecutor(initializer=init_pool,
+                                 initargs=(boundaries_df,
+                                           boundaries_df,
+                                           scpdsi,
+                                           affine)) as pool:
             df_futures = pool.map(agg_ts_data,
-                                  times)  # :5 just to temp get first 5
+                                  times)
 
             # for nc_time in tqdm(times):
             #     # logger.info(f'Parsing time {nc_time}')
@@ -173,9 +173,9 @@ def ts_to_stats(shape_file_archive, ts_file):
 
             # for future in as_completed(df_futures):
             #     try:
-            #         nc_time, df = future.result()
+            #         nc_time, from_dict = future.result()
             #         logger.info(f'Processed for time {nc_time}')
-            #         dfs.append(df)
+            #         dfs.append(pd.DataFrame.from_records(from_dict))
             #     except Exception as e:
             #         print(f'Exception for future.result(): {e}')
 
@@ -214,7 +214,7 @@ if __name__ == '__main__':
                          'examples/drought.nc')
 
     if df is not None and not df.empty:
-        df.to_csv('new_zonal_stats.csv')
+        df.to_csv('new_zonal_stats.csv', index=False)
     else:
         logger.warning('No data to write.')
 
