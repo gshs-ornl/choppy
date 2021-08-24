@@ -27,7 +27,7 @@ except ImportError:
 logger = create_logger()
 
 
-def init_pool(b_df, b_db, scpdsi_data, affine_data):
+def _init_pool(b_df, b_db, scpdsi_data, affine_data):
     """ Used to set up data for workers """
     global boundaries_df, boundaries_db, scpdsi, affine
     boundaries_df = b_df
@@ -36,7 +36,7 @@ def init_pool(b_df, b_db, scpdsi_data, affine_data):
     affine = affine_data
 
 
-def agg_ts_data(nc_time):
+def _agg_ts_data(nc_time):
     """ This creates a single dataframe for the given nc_time
 
     :returns: time and single dataframe of nc_time data
@@ -138,12 +138,12 @@ def ts_to_stats(shape_file_archive, ts_file):
 
         # json = boundaries_df.to_json()
 
-        with ProcessPoolExecutor(initializer=init_pool,
+        with ProcessPoolExecutor(initializer=_init_pool,
                                  initargs=(boundaries_df,
                                            boundaries_df,
                                            scpdsi,
                                            affine)) as pool:
-            df_futures = pool.map(agg_ts_data,
+            df_futures = pool.map(_agg_ts_data,
                                   times)
 
             # for nc_time in tqdm(times):
