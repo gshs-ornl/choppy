@@ -34,7 +34,9 @@ def _init_pool(b_df, scpdsi_data, affine_data):
 def _agg_ts_data(nc_time):
     """ This creates a single dataframe for the given nc_time
 
-    :returns: time and single dataframe of nc_time data
+    Called via map() for all dates.
+
+    :returns: single dataframe of nc_time data
     """
     try:
         from choppyzs.logz import create_logger
@@ -142,6 +144,8 @@ def ts_to_stats(shape_file_archive, ts_file):
 
 
 if __name__ == '__main__':
+    # Just a simple test harness
+
     logger.info('running ts2stats test')
 
     if Path('/examples').exists():
