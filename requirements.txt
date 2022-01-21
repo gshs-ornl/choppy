@@ -18,3 +18,4 @@ ImageHash==4.2.1
 imageio==2.9.0
 rich==10.7.0
 tqdm==4.62.2
+cftime==1.5.1
