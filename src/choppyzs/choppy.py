@@ -50,7 +50,7 @@ class Choppy:
     def __init__(self, shape_archive, raster_file, output_dir=os.getcwd(),
                  statistics='min,max,mean,median,majority,sum,std,count,range',
                  output_file='zonal_stats', all_touched=False,
-                 output_format='xlsx', geometry=False):
+                 output_format='xlsx', geometry=False, melt=False):
         """ Initialize a Choppy class for preparation for zonal statistics """
         # create a temporary workspace
         if output_format not in ['xlsx', 'csv', 'tsv', 'none']:
@@ -69,6 +69,8 @@ class Choppy:
         self.all_touched = all_touched
         self.raster_file = raster_file
         self.shape_archive = shape_archive
+        self.melt = melt
+        self.geometry = geometry
         pa.extract_archive(shape_archive, outdir=self.working_directory.name)
         print(os.listdir(self.working_directory.name))
         shape_dir_name = os.path.basename(
@@ -112,7 +114,12 @@ class Choppy:
                                  stats=self.statistics)
         sd = pd.DataFrame.from_dict(stats_data)
         df = pd.DataFrame(self.shapes)
-        dat = pd.concat([df, sd], axis=1).drop(columns='geometry')
+        if self.geometry is False:
+            dat = pd.concat([df, sd], axis=1).drop(columns='geometry')
+        elif self.geometry is not False:
+            dat = pd.concat([df, sd], axis=1)
+        if self.melt is True:
+            df = pd.melt(df, value_vars=self.statistics, var_name='Attribute')
         if self.output_format == 'csv':
             dat.to_csv(self.output_path, index=False)
         elif self.output_format == 'tsv':
