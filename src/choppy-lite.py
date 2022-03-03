@@ -93,17 +93,17 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Add values via command line to send to choppy")
     parser.add_argument(
-        '--shp-file', type=argparse.FileType('r'),
+        '--shp-file', type=str,
         help='The shape file to use', dest='shape_file', action='store')
     parser.add_argument(
         '--shapes-directory', type=str, action='store',
         dest='shapes_dir', help='the directory where the shape files exist')
     parser.add_argument(
-        '-s', '--shape_archive', type=argparse.FileType('r'),
+        '-s', '--shape_archive', type=str,
         help="The archived files to use to extract features and \
         compare against the raster", dest="shape_archive", action="store")
     parser.add_argument(
-        '-r', '--raster', type=argparse.FileType('r'),
+        '-r', '--raster', type=str,
         help="The rasterfile to use for retrieving zonals stats from",
         dest="raster", action="store")
     parser.add_argument(
